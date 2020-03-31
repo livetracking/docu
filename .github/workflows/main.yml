@@ -22,6 +22,8 @@ jobs:
         pip3 install mkdocs-material
     - name: Build docs
       run: $HOME/.local/bin/mkdocs build
+    - name: CNAME
+      run: echo 'livetracking.nkn-it.de' > "site/CNAME"
     - name: Deploy to gh-pages branch
       uses: s0/git-publish-subdir-action@master
       env:
