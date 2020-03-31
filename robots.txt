@@ -1,0 +1,3 @@
+Disallow: /img/
+Disallow: /assets/
+Disallow: /Imprint.html
