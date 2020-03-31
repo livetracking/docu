@@ -1,9 +1,9 @@
 # Live Tracking
 
-With this open source live tracking software you can record and analyze data in real time.
+With this open source **live tracking** software you can record and analyze data in **real time**.
 You have full control over the data, because the software runs on your own server.
 You are able to track your time elapsed, distance, speed and elevation in real time.
-And if you have any ANT+ or Bluetooth sensors, this data can also be transmitted.
+And if you have any **ANT+** or **Bluetooth** sensors, this data can also be transmitted.
 Optimized for easy use.
 
 ## Input
