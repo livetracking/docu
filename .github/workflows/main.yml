@@ -1,0 +1,31 @@
+name: Deploy MkDocs
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v2
+    - name: Install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install rsync python3-pip -y
+    - name: Install MkDocs
+      run: |
+        pip3 install --upgrade setuptools
+        pip3 install mkdocs
+        pip3 install mkdocs-material
+    - name: Build docs
+      run: $HOME/.local/bin/mkdocs build
+    - name: Deploy to gh-pages branch
+      uses: s0/git-publish-subdir-action@master
+      env:
+        REPO: self
+        BRANCH: gh-pages
+        FOLDER: site
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

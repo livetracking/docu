@@ -1,0 +1,34 @@
+site_name: Live Tracking
+nav:
+- 'About': index.md
+- 'API':
+  - 'Getting started': Getting-started.md
+  - 'New User':
+    - 'Create User (Register)': Create-User-Register.md
+    - 'Email Address Verification':  Email-Address-Verification.md
+  - 'User Data':
+    - 'Get User Data': Get-User-Data.md
+    - 'Search Users': Search-Users.md
+  - 'Edit User':
+    - 'Change Username': Change-Username.md
+    - 'Change Password': Change-Password.md
+    - 'Change Email': Change-Email.md
+    - 'Delete User': Delete-User.md
+    - 'Request Password Reset': Request-Password-Reset.md
+    - 'Reset Password': Reset-Password.md
+  - 'Share':
+    - 'Add Share to Username (Grant Read Access)': Add-Share-to-Username.md
+    - 'Remove Share from Username (Remove Read Permission)': Remove-Share-from-Username.md
+  - 'Live Tracking':
+    - 'Writing Data': Writing-Data.md
+    - 'Querying Data': Querying-Data.md
+use_directory_urls: false
+repo_url: https://github.com/livetracking/docu
+theme:
+  language: 'en'
+  name: 'material'
+  favicon: 'img/favicon.ico'
+  logo: 'img/logo.png'
+  palette:
+    primary: 'white'
+    accent: 'black'
