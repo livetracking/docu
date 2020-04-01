@@ -18,7 +18,7 @@ You can transfer your speed, heart rate, cadence and power as well as the GPS co
 ## Output
 
 This software is very much based on [InfluxDB](https://www.influxdata.com/).
-So you have all the advantages of a very fast time series database.
+So you have all the advantages of a **very fast time series database**.
 It aims to answer queries in real-time.
 Each user comes with his own InfluxDB database for live tracking.
 Only you as an owner can write to the database.
@@ -33,6 +33,21 @@ Your profile is always public, your friends can view your data at the following 
 Because you have your own InfluxDB database, you can also use other evaluation programs.
 A popular program is e.g. [Grafana](http://docs.grafana.org/features/datasources/influxdb/).
 Use the URL <code>https://your-domain.local</code> and the database name <code>YOUR-USERNAME</code>.
+
+## Features
+
+* Built-in HTTP API so you don't have to write any server side code to get up and running.
+* SQL-like query language.
+* Get data fast in and out.
+* It aims to answer queries in real-time.
+  That means every data point is indexed as it comes in and is immediately available in queries that should return in < 100ms.
+
+## Requirements
+
+* [PHP 7](http://php.net/) and [Composer](https://getcomposer.org/)
+* [Lighttpd](https://www.lighttpd.net/) or another web server
+* [InfluxDB](https://www.influxdata.com/products/influxdb-overview/)
+* [SQLite](https://www.sqlite.org/)
 
 ## Developers Welcome
 
