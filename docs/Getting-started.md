@@ -15,24 +15,16 @@ Many API methods take parameters. Which parameters are expected exactly will be 
 New User:
 
 * [Create User (Register)](Create-User-Register.md)
-* [Email Address Verification](Email-Address-Verification.md)
 
 User Data:
 
+* [Get User List](Get-User-List.md)
 * [Get User Data](Get-User-Data.md)
-* [Search Users](Search-Users.md)
 
 Edit User:
 
-* [Change Username](Change-Username.md)
 * [Change Password](Change-Password.md)
-* [Change Email](Change-Email.md)
 * [Delete User](Delete-User.md)
-
-Share:
-
-* [Add Share to Username (Grant Read Access)](Add-Share-to-Username.md)
-* [Remove Share from Username (Remove Read Permission)](Remove-Share-from-Username.md)
 
 Live Tracking:
 
@@ -94,7 +86,6 @@ HTTP/1.1 400 Bad Request
 {
   "errors": [
     "INVALIDATE_PASSWORD",
-    "INVALIDATE_EMAIL"
   ]
 }
 ```
@@ -102,17 +93,11 @@ HTTP/1.1 400 Bad Request
 
 **Error Codes (Detail):**
 
-* `IP_TEMP_BLOCKED`: IP address temporarily blocked. Please try again in two hours.
 * `USERNAME_DOUBLE`: The username is already used.
 * `INVALIDATE_USERNAME`: The username is not valid. It must be at least 4 characters and can be up to 20 characters long. It can only contain characters (a-z) and numbers.
 * `INVALIDATE_PASSWORD`: The entered password is invalid. The password must be at least 8 characters long.
 * `INVALIDATE_NEW_PASSWORD`: The entered new password is invalid. The password must be at least 8 characters long.'
-* `INVALIDATE_EMAIL`: The email is not valid.
-* `INVALIDATE_TOKEN`: Invalid token.
-* `EMAIL_NOT_VERIFIED`: Email address is not verified. No delivery to this email address possible.
 * `USERNAME_NOT_FOUND`: Username could not be found.
-* `EMAIL_NOT_FOUND`: Email address could not be found.
-* `TOKEN_NOT_FOUND`: No token could be found.
 * `SELF_TALK`: Self talk?
 * `FORBIDDEN`: The entered password is not correct.
 

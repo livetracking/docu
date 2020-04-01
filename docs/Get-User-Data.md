@@ -23,12 +23,6 @@ curl -u test:test1234 "https://your-domain.local/user/nils"
 * user
   * id
   * username
-  * email _(Only for own user)_
-* shares
-  * to
-    * _Usernames_
-  * from
-    * _Usernames_
 
 **Errors:**
 

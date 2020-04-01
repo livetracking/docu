@@ -12,7 +12,6 @@
 
 ```
  curl --data "username=TEST" \
-      --data "email=test@localhost.local" \
       --data "password=test1234" https://your-domain.local/register
 ```
 
@@ -40,11 +39,9 @@ Example:
 **Errors:**
 
 * errors
-  * IP_TEMP_BLOCKED
   * USERNAME_DOUBLE
   * INVALIDATE_USERNAME
   * INVALIDATE_PASSWORD
-  * INVALIDATE_EMAIL
 
 Example:
 
@@ -52,8 +49,7 @@ Example:
 {
   "errors": [
     "USERNAME_DOUBLE",
-    "INVALIDATE_PASSWORD",
-    "INVALIDATE_EMAIL"
+    "INVALIDATE_PASSWORD"
   ]
 }
 ```

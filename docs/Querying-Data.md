@@ -1,6 +1,6 @@
 # Querying Data (Live Tracking)
 
-To perform a query send a GET request to the `https://output.livetracking.io/query` endpoint, set the URL parameter `db` as the target database, and set the URL parameter `q` as your query. 
+To perform a query send a GET request to the `https://your-domain.local/query` endpoint, set the URL parameter `db` as the target database, and set the URL parameter `q` as your query. 
 
 livetracking.io is based on the time series database [InfluxDB](https://github.com/influxdata/influxdb). Each user comes with their own database. The database name is the same as the user name.
 
@@ -8,10 +8,12 @@ If you want to learn more about the InfluxDB HTTP API, you can read the [officia
 
 ## [GET] /query
 
-The example below uses the HTTP API to query the same database that you encountered in [Writing Data](Writing-Data). 
+The example below uses the HTTP API to query the same database that you encountered in [Writing Data](Writing-Data).
+
+The user `public` with password `livetracking` always has read access to all data.
 
 ```
-curl -u "test:test1234" -G 'https://output.livetracking.io/query?db=test' \
+curl -u "public:livetracking" -G 'https://your-domain.local/query?db=test' \
   --data-urlencode 'q=SELECT * FROM samples'
 ```
 
@@ -38,7 +40,7 @@ Note the spaces and comma.
 
 Field keys are the same as when [writing data](Writing-Data).
 
-A detailed description of the syntax used can be found in the [InfluxDB Help](https://docs.influxdata.com/influxdb/v1.2/query_language/data_exploration/).
+A detailed description of the syntax used can be found in the [InfluxDB Help](https://docs.influxdata.com/influxdb/v1.7/query_language/data_exploration/).
 
 Example to see data from the last 10 minutes:
 
@@ -61,7 +63,7 @@ Optional. Everything is stored and reported in UTC. By default, timestamps are r
 For example, get epoch in seconds with:
 
 ```
-curl -u "test:test1234" -G 'https://output.livetracking.io/query' \
+curl -u "public:livetracking" -G 'https://your-domain.local/query' \
   --data-urlencode 'db=test'
   --data-urlencode 'epoch=s'
   --data-urlencode 'q=SELECT * FROM samples'
