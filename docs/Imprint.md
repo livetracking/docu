@@ -9,9 +9,9 @@ Klabundeweg 14
 Germany
 ```
 
-Email: nils [at] nkn-it (dot) de
+Email: `nils [at] nkn-it (dot) de`
 
-Phone: `+ 49 (0) 40 2282 1390` (kein Support)
+Phone: `+ 49 (0) 40 2282 1390` (no support)
 
 
 Umsatzsteuer-ID gemäß §27 a Umsatzsteuergesetz (VAT ID Number Germany):
