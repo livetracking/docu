@@ -25,10 +25,7 @@ Only you as an owner can write to the database.
 You can give other users read rights to your live tracking database.
 Currently you can save 8 hours of data.
 
-If you make your profile public, anyone can view your data at the following URL:
-`https://your-domain.local/public/YOUR-USERNAME`
-
-If your profile is not public, your friends can view your data at the following URL:
+Your profile is always public, your friends can view your data at the following URL:
 `https://your-domain.local/watch/YOUR-USERNAME`
 
 ![Screenshot](img/livetracking_web.png)
