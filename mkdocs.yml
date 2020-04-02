@@ -1,6 +1,7 @@
 site_name: Live Tracking
 nav:
 - 'About': index.md
+- 'Installation': Install.md
 - 'API':
   - 'Getting started': Getting-started.md
   - 'New User':
