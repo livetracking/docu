@@ -5,7 +5,7 @@
 **Examples:**
 
 ```
-curl -u test:test1234 "https://your-domain.local/users"
+curl "https://your-domain.local/users"
 ```
 
 ### Response
