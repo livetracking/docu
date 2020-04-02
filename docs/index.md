@@ -22,7 +22,6 @@ So you have all the advantages of a **very fast time series database**.
 It aims to answer queries in real-time.
 Each user comes with his own InfluxDB database for live tracking.
 Only you as an owner can write to the database.
-You can give other users read rights to your live tracking database.
 Currently you can save 8 hours of data.
 
 Your profile is always public, your friends can view your data at the following URL:
