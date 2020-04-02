@@ -28,7 +28,9 @@ Currently you can save 8 hours of data.
 Your profile is always public, your friends can view your data at the following URL:
 `https://your-domain.local/watch/YOUR-USERNAME`
 
-![Screenshot](img/livetracking_web.png)
+[![Screenshot](img/screenshot.png)](https://youtu.be/HeffZvu_Zh0/)
+
+***(Click the image to watch a demo video)***
 
 Because you have your own InfluxDB database, you can also use other evaluation programs.
 A popular program is e.g. [Grafana](http://docs.grafana.org/features/datasources/influxdb/).
@@ -53,7 +55,7 @@ Use the URL <code>https://your-domain.local</code> and the database name <code>Y
 
 You can use this software as the back end for live tracking.
 It is very easy to integrate into existing apps.
-The back-end is coded in PHP. Data is stored in a SQLite and InfuxDB database.
+The back end is coded in PHP. Data is stored in a SQLite and InfuxDB database.
 The transfer is done via an HTTP API.
 You will find more details in the [API documentation](Getting-started.md).
 
