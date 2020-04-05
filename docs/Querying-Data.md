@@ -69,3 +69,11 @@ curl -u "public:livetracking" -G 'https://your-domain.local/query' \
   --data-urlencode 'q=SELECT * FROM samples'
 ```
 
+
+## Examples
+
+### JavaScript
+
+An example to display the data on a web page can be found at this link:
+
+<https://github.com/livetracking/docu/blob/master/examples/javascript.html>

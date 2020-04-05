@@ -1,0 +1,486 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Live Tracking</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+</head>
+<style>
+    body {
+        font-family: "Lucida Console", Courier, monospace;
+        font-size: 120px;
+        text-shadow: 2px 2px #ff0000;
+    }
+</style>
+<body>
+
+<span id="last_pwr_w"></span> W
+
+<!-- Last
+<span id="last_alt_m"></span>
+<span id="last_spd_kph"></span>
+<span id="last_hr_bpm"></span>
+<span id="last_cad_rpm"></span>
+<span id="last_pwr_w"></span>
+<span id="last_temp_c"></span>
+-->
+
+<!-- Average
+<span id="mean_alt_m_3s"></span>
+<span id="mean_alt_m_1m"></span>
+<span id="mean_alt_m_5m"></span>
+<span id="mean_alt_m_10m"></span>
+
+<span id="mean_spd_kph_3s"></span>
+<span id="mean_spd_kph_1m"></span>
+<span id="mean_spd_kph_5m"></span>
+<span id="mean_spd_kph_10m"></span>
+
+<span id="mean_hr_bpm_3s"></span>
+<span id="mean_hr_bpm_1m"></span>
+<span id="mean_hr_bpm_5m"></span>
+<span id="mean_hr_bpm_10m"></span>
+
+<span id="mean_cad_rpm_3s"></span>
+<span id="mean_cad_rpm_1m"></span>
+<span id="mean_cad_rpm_5m"></span>
+<span id="mean_cad_rpm_10m"></span>
+
+<span id="mean_pwr_w_3s"></span>
+<span id="mean_pwr_w_1m"></span>
+<span id="mean_pwr_w_5m"></span>
+<span id="mean_pwr_w_10m"></span>
+
+<span id="mean_temp_c_3s"></span>
+<span id="mean_temp_c_1m"></span>
+<span id="mean_temp_c_5m"></span>
+<span id="mean_temp_c_10m"></span>
+-->
+
+<script>
+/***
+ * Config
+ *
+ */
+var username = 'test';
+var influxdb_url = 'http://127.0.0.1:8086';
+
+/***
+ * InfluxDB query
+ *
+ */
+function get_query_sql() {
+	var query_sql = 'SELECT '+  // results: 0m values: n
+	'LAST(lat),'+        // 1
+	'LAST(lng),'+        // 2
+	'LAST(acc_m),'+      // 3
+	'LAST(bearing),'+    // 4
+	'LAST(battery),'+    // 5
+	'LAST(gsm_signal),'+ // 6
+	'LAST(temp_c),'+     // 7
+	'LAST(spd_kph),'+    // 8
+	'LAST(alt_m),'+      // 9
+	'LAST(hr_bpm),'+     // 10
+	'LAST(cad_rpm),'+    // 11
+	'LAST(pwr_w),'+      // 12
+	'LAST(dur_s),'+      // 13
+	'LAST(dist_km)'+     // 14
+	' FROM samples WHERE time > now() - 15m;'+
+	// temp_c
+	'SELECT MIN(temp_c), MEAN(temp_c), MAX(temp_c) FROM samples WHERE time > now() - 3s;' + // results: 1, 3 sec
+	'SELECT MIN(temp_c), MEAN(temp_c), MAX(temp_c) FROM samples WHERE time > now() - 1m;' + // results: 2, 1 min
+	'SELECT MIN(temp_c), MEAN(temp_c), MAX(temp_c) FROM samples WHERE time > now() - 5m;' + // results: 3, 5 min
+	'SELECT MIN(temp_c), MEAN(temp_c), MAX(temp_c) FROM samples WHERE time > now() - 10m;'+ // results: 4  10 min
+	// spd_kph
+	'SELECT MIN(spd_kph), MEAN(spd_kph), MAX(spd_kph) FROM samples WHERE time > now() - 3s;' + // results: 5, 3 sec
+	'SELECT MIN(spd_kph), MEAN(spd_kph), MAX(spd_kph) FROM samples WHERE time > now() - 1m;' + // results: 6, 1 min
+	'SELECT MIN(spd_kph), MEAN(spd_kph), MAX(spd_kph) FROM samples WHERE time > now() - 5m;' + // results: 7, 5 min
+	'SELECT MIN(spd_kph), MEAN(spd_kph), MAX(spd_kph) FROM samples WHERE time > now() - 10m;'+ // results: 8  10 min
+	// alt_m
+	'SELECT MIN(alt_m), MEAN(alt_m), MAX(alt_m) FROM samples WHERE time > now() - 3s;' + // results: 9, 3 sec
+	'SELECT MIN(alt_m), MEAN(alt_m), MAX(alt_m) FROM samples WHERE time > now() - 1m;' + // results: 10, 1 min
+	'SELECT MIN(alt_m), MEAN(alt_m), MAX(alt_m) FROM samples WHERE time > now() - 5m;' + // results: 11, 5 min
+	'SELECT MIN(alt_m), MEAN(alt_m), MAX(alt_m) FROM samples WHERE time > now() - 10m;'+ // results: 12  10 min
+	// hr_bpm
+	'SELECT MIN(hr_bpm), MEAN(hr_bpm), MAX(hr_bpm) FROM samples WHERE time > now() - 3s;' + // results: 13, 3 sec
+	'SELECT MIN(hr_bpm), MEAN(hr_bpm), MAX(hr_bpm) FROM samples WHERE time > now() - 1m;' + // results: 14, 1 min
+	'SELECT MIN(hr_bpm), MEAN(hr_bpm), MAX(hr_bpm) FROM samples WHERE time > now() - 5m;' + // results: 15, 5 min
+	'SELECT MIN(hr_bpm), MEAN(hr_bpm), MAX(hr_bpm) FROM samples WHERE time > now() - 10m;'+ // results: 16, 10 min
+	// cad_rpm
+	'SELECT MIN(cad_rpm), MEAN(cad_rpm), MAX(cad_rpm) FROM samples WHERE time > now() - 3s;' + // results: 17,  3 sec
+	'SELECT MIN(cad_rpm), MEAN(cad_rpm), MAX(cad_rpm) FROM samples WHERE time > now() - 1m;' + // results: 18, 1 min
+	'SELECT MIN(cad_rpm), MEAN(cad_rpm), MAX(cad_rpm) FROM samples WHERE time > now() - 5m;' + // results: 19, 5 min
+	'SELECT MIN(cad_rpm), MEAN(cad_rpm), MAX(cad_rpm) FROM samples WHERE time > now() - 10m;'+ // results: 20, 10 min
+	// pwr_w
+	'SELECT MIN(pwr_w), MEAN(pwr_w), MAX(pwr_w) FROM samples WHERE time > now() - 3s;' + // results: 21, 3 sec
+	'SELECT MIN(pwr_w), MEAN(pwr_w), MAX(pwr_w) FROM samples WHERE time > now() - 1m;' + // results: 22, 1 min
+	'SELECT MIN(pwr_w), MEAN(pwr_w), MAX(pwr_w) FROM samples WHERE time > now() - 5m;' + // results: 23, 5 min
+	'SELECT MIN(pwr_w), MEAN(pwr_w), MAX(pwr_w) FROM samples WHERE time > now() - 10m;'; // results: 24, 10 min
+	return query_sql;
+}
+
+/***
+ * Format
+ *
+ */
+
+function dur_s(d) {
+	if (d && d > 0){
+		d = Number(d);
+		var h = Math.floor(d / 3600);
+		var m = Math.floor(d % 3600 / 60);
+		var s = Math.floor(d % 3600 % 60);
+		return ((h > 0 ? (h >= 10 ? h : '0' + h): '00') + ':' + (m > 0 ? (m >= 10 ? m : '0' + m): '00') + ':' + (s > 0 ? (s >= 10 ? s : '0' + s): '00')  );
+	} else {
+		return null;
+	}
+}
+
+function dist_km(km) {
+	if (km && km > 0){
+		return numeral(km).format('0.00')
+	} else {
+		return null
+	}
+}
+
+function acc_m(meter) {
+	if (meter && meter > 0){
+		return numeral(meter).format('0')
+	} else {
+		return null
+	}
+}
+
+function battery(percent) {
+	if (percent >= 0){
+		return numeral(percent).format('0')
+	} else {
+		return null
+	}
+}
+
+function gsm_signal(percent) {
+	if (percent != null && percent >= 0){
+		return numeral(percent).format('0')
+	} else {
+		return null
+	}
+}
+
+function temp_c(celsius) {
+	if (celsius && (celsius > -90 && celsius < 90)){
+		return numeral(celsius).format('0.00')
+	} else {
+		return null
+	}
+}
+
+
+function spd_kph(kph) {
+	if (kph != null && kph >= 0){
+		return numeral(kph).format('0.00')
+	} else {
+		return null
+	}
+}
+
+function alt_m(meter) {
+	if (meter && (meter > 0 || meter < 0)){
+		return numeral(meter).format('0')
+	} else {
+		return null
+	}
+}
+
+function hr_bpm(bpm) {
+	if (bpm && bpm > 0){
+		return numeral(bpm).format('0')
+	} else {
+		return null
+	}
+}
+
+function cad_rpm(rpm) {
+	if (rpm != null && rpm >= 0){
+		return numeral(rpm).format('0')
+	} else {
+		return null
+	}
+}
+
+function pwr_w(watt) {
+	if (watt != null && watt >= 0){
+		return numeral(watt).format('0')
+	} else {
+		return null
+	}
+}
+
+/***
+ * Query InfluxDB
+ *
+ */
+
+function query() {
+	$.ajax({
+		dataType: "json",
+		method: "GET",
+		beforeSend: function (xhr) {
+			xhr.setRequestHeader ("Authorization", "Basic " + btoa('public:livetracking'));
+		},
+		url: influxdb_url + '/query',
+		data: {
+			db: username,
+			epoch: 's',
+			q: get_query_sql()
+		},
+		crossDomain: true
+	}).error(function(xhr){
+		//var status = xhr.status;
+	}).success(function(json){
+		query_result(json);
+	});
+}
+
+function query_result(json){
+	if (json['results']){
+		// last time, battery and gsm signal
+		if (json['results']['0']['series']) {
+			if (json['results']['0']['series']['0']['values']) {
+				$("#last_battery").html(battery(json['results']['0']['series']['0']['values']['0']['5']));
+				$("#last_gsm_signal").html(gsm_signal(json['results']['0']['series']['0']['values']['0']['6']));
+				$("#last_temp_c").html(temp_c(json['results']['0']['series']['0']['values']['0']['7']));
+				$("#last_spd_kph").html(spd_kph(json['results']['0']['series']['0']['values']['0']['8']));
+				$("#last_alt_m").html(alt_m(json['results']['0']['series']['0']['values']['0']['9']));
+				$("#last_hr_bpm").html(hr_bpm(json['results']['0']['series']['0']['values']['0']['10']));
+				$("#last_cad_rpm").html(cad_rpm(json['results']['0']['series']['0']['values']['0']['11']));
+				$("#last_pwr_w").html(pwr_w(json['results']['0']['series']['0']['values']['0']['12']));
+				$("#last_dur_s").html(dur_s(json['results']['0']['series']['0']['values']['0']['13']));
+				$("#last_dist_km").html(dist_km(json['results']['0']['series']['0']['values']['0']['14']));
+			}
+		}
+		// alt_m
+		if (json['results']['12']['series'] && json['results']['12']['series']['0']['values']['0']['2']){
+			// 3 sec
+			if (json['results']['9']['series']) {
+				if (json['results']['9']['series']['0']['values']) {
+					$("#min_alt_m_3s").html(alt_m(json['results']['9']['series']['0']['values']['0']['1']))
+					$("#mean_alt_m_3s").html(alt_m(json['results']['9']['series']['0']['values']['0']['2']))
+					$("#max_alt_m_3s").html(alt_m(json['results']['9']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 1 min
+			if (json['results']['10']['series']) {
+				if (json['results']['10']['series']['0']['values']) {
+					$("#min_alt_m_1m").html(alt_m(json['results']['10']['series']['0']['values']['0']['1']))
+					$("#mean_alt_m_1m").html(alt_m(json['results']['10']['series']['0']['values']['0']['2']))
+					$("#max_alt_m_1m").html(alt_m(json['results']['10']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 5 min
+			if (json['results']['11']['series']) {
+				if (json['results']['11']['series']['0']['values']) {
+					$("#min_alt_m_5m").html(alt_m(json['results']['11']['series']['0']['values']['0']['1']))
+					$("#mean_alt_m_5m").html(alt_m(json['results']['11']['series']['0']['values']['0']['2']))
+					$("#max_alt_m_5m").html(alt_m(json['results']['11']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 10 min
+			if (json['results']['12']['series']) {
+				if (json['results']['12']['series']['0']['values']) {
+					$("#min_alt_m_10m").html(alt_m(json['results']['12']['series']['0']['values']['0']['1']))
+					$("#mean_alt_m_10m").html(alt_m(json['results']['12']['series']['0']['values']['0']['2']))
+					$("#max_alt_m_10m").html(alt_m(json['results']['12']['series']['0']['values']['0']['3']))
+				}
+			}
+		}
+		// temp_c
+		if (json['results']['4']['series'] && json['results']['4']['series']['0']['values']['0']['2']){
+			// 3 sec
+			if (json['results']['1']['series']) {
+				if (json['results']['1']['series']['0']['values']) {
+					$("#min_temp_c_3s").html(temp_c(json['results']['1']['series']['0']['values']['0']['1']))
+					$("#mean_temp_c_3s").html(temp_c(json['results']['1']['series']['0']['values']['0']['2']))
+					$("#max_temp_c_3s").html(temp_c(json['results']['1']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 1 min
+			if (json['results']['2']['series']) {
+				if (json['results']['2']['series']['0']['values']) {
+					$("#min_temp_c_1m").html(temp_c(json['results']['2']['series']['0']['values']['0']['1']))
+					$("#mean_temp_c_1m").html(temp_c(json['results']['2']['series']['0']['values']['0']['2']))
+					$("#max_temp_c_1m").html(temp_c(json['results']['2']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 5 min
+			if (json['results']['3']['series']) {
+				if (json['results']['3']['series']['0']['values']) {
+					$("#min_temp_c_5m").html(temp_c(json['results']['3']['series']['0']['values']['0']['1']))
+					$("#mean_temp_c_5m").html(temp_c(json['results']['3']['series']['0']['values']['0']['2']))
+					$("#max_temp_c_5m").html(temp_c(json['results']['3']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 10 min
+			if (json['results']['4']['series']) {
+				if (json['results']['4']['series']['0']['values']) {
+					$("#min_temp_c_10m").html(temp_c(json['results']['4']['series']['0']['values']['0']['1']))
+					$("#mean_temp_c_10m").html(temp_c(json['results']['4']['series']['0']['values']['0']['2']))
+					$("#max_temp_c_10m").html(temp_c(json['results']['4']['series']['0']['values']['0']['3']))
+				}
+			}
+		}
+		// spd_kph
+		if (json['results']['8']['series'] && json['results']['8']['series']['0']['values']['0']['2']){
+			// 3 sec
+			if (json['results']['5']['series']) {
+				if (json['results']['5']['series']['0']['values']) {
+					$("#min_spd_kph_3s").html(spd_kph(json['results']['5']['series']['0']['values']['0']['1']))
+					$("#mean_spd_kph_3s").html(spd_kph(json['results']['5']['series']['0']['values']['0']['2']))
+					$("#max_spd_kph_3s").html(spd_kph(json['results']['5']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 1 min
+			if (json['results']['6']['series']) {
+				if (json['results']['6']['series']['0']['values']) {
+					$("#min_spd_kph_1m").html(spd_kph(json['results']['6']['series']['0']['values']['0']['1']))
+					$("#mean_spd_kph_1m").html(spd_kph(json['results']['6']['series']['0']['values']['0']['2']))
+					$("#max_spd_kph_1m").html(spd_kph(json['results']['6']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 5 min
+			if (json['results']['7']['series']) {
+				if (json['results']['7']['series']['0']['values']) {
+					$("#min_spd_kph_5m").html(spd_kph(json['results']['7']['series']['0']['values']['0']['1']))
+					$("#mean_spd_kph_5m").html(spd_kph(json['results']['7']['series']['0']['values']['0']['2']))
+					$("#max_spd_kph_5m").html(spd_kph(json['results']['7']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 10 min
+			if (json['results']['8']['series']) {
+				if (json['results']['8']['series']['0']['values']) {
+					$("#min_spd_kph_10m").html(spd_kph(json['results']['8']['series']['0']['values']['0']['1']))
+					$("#mean_spd_kph_10m").html(spd_kph(json['results']['8']['series']['0']['values']['0']['2']))
+					$("#max_spd_kph_10m").html(spd_kph(json['results']['8']['series']['0']['values']['0']['3']))
+				}
+			}
+		}
+		// hr_bpm
+		if (json['results']['16']['series'] && json['results']['16']['series']['0']['values']['0']['2']){
+			// 3 sec
+			if (json['results']['13']['series']) {
+				if (json['results']['13']['series']['0']['values']) {
+					$("#min_hr_bpm_3s").html(hr_bpm(json['results']['13']['series']['0']['values']['0']['1']))
+					$("#mean_hr_bpm_3s").html(hr_bpm(json['results']['13']['series']['0']['values']['0']['2']))
+					$("#max_hr_bpm_3s").html(hr_bpm(json['results']['13']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 1 min
+			if (json['results']['14']['series']) {
+				if (json['results']['14']['series']['0']['values']) {
+					$("#min_hr_bpm_1m").html(hr_bpm(json['results']['14']['series']['0']['values']['0']['1']))
+					$("#mean_hr_bpm_1m").html(hr_bpm(json['results']['14']['series']['0']['values']['0']['2']))
+					$("#max_hr_bpm_1m").html(hr_bpm(json['results']['14']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 5 min
+			if (json['results']['15']['series']) {
+				if (json['results']['15']['series']['0']['values']) {
+					$("#min_hr_bpm_5m").html(hr_bpm(json['results']['15']['series']['0']['values']['0']['1']))
+					$("#mean_hr_bpm_5m").html(hr_bpm(json['results']['15']['series']['0']['values']['0']['2']))
+					$("#max_hr_bpm_5m").html(hr_bpm(json['results']['15']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 10 min
+			if (json['results']['16']['series']) {
+				if (json['results']['16']['series']['0']['values']) {
+					$("#min_hr_bpm_10m").html(hr_bpm(json['results']['16']['series']['0']['values']['0']['1']))
+					$("#mean_hr_bpm_10m").html(hr_bpm(json['results']['16']['series']['0']['values']['0']['2']))
+					$("#max_hr_bpm_10m").html(hr_bpm(json['results']['16']['series']['0']['values']['0']['3']))
+				}
+			}
+		}
+		// cad_rpm
+		if (json['results']['20']['series'] && json['results']['20']['series']['0']['values']['0']['2']){
+			// 3 sec
+			if (json['results']['17']['series']) {
+				if (json['results']['17']['series']['0']['values']) {
+					$("#min_cad_rpm_3s").html(cad_rpm(json['results']['17']['series']['0']['values']['0']['1']))
+					$("#mean_cad_rpm_3s").html(cad_rpm(json['results']['17']['series']['0']['values']['0']['2']))
+					$("#max_cad_rpm_3s").html(cad_rpm(json['results']['17']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 1 min
+			if (json['results']['18']['series']) {
+				if (json['results']['18']['series']['0']['values']) {
+					$("#min_cad_rpm_1m").html(cad_rpm(json['results']['18']['series']['0']['values']['0']['1']))
+					$("#mean_cad_rpm_1m").html(cad_rpm(json['results']['18']['series']['0']['values']['0']['2']))
+					$("#max_cad_rpm_1m").html(cad_rpm(json['results']['18']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 5 min
+			if (json['results']['19']['series']) {
+				if (json['results']['19']['series']['0']['values']) {
+					$("#min_cad_rpm_5m").html(cad_rpm(json['results']['19']['series']['0']['values']['0']['1']))
+					$("#mean_cad_rpm_5m").html(cad_rpm(json['results']['19']['series']['0']['values']['0']['2']))
+					$("#max_cad_rpm_5m").html(cad_rpm(json['results']['19']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 10 min
+			if (json['results']['20']['series']) {
+				if (json['results']['20']['series']['0']['values']) {
+					$("#min_cad_rpm_10m").html(cad_rpm(json['results']['20']['series']['0']['values']['0']['1']))
+					$("#mean_cad_rpm_10m").html(cad_rpm(json['results']['20']['series']['0']['values']['0']['2']))
+					$("#max_cad_rpm_10m").html(cad_rpm(json['results']['20']['series']['0']['values']['0']['3']))
+				}
+			}
+		}
+		// pwr_w
+		if (json['results']['24']['series'] && json['results']['24']['series']['0']['values']['0']['2']){
+			// 3 sec
+			if (json['results']['21']['series']) {
+				if (json['results']['21']['series']['0']['values']) {
+					$("#min_pwr_w_3s").html(pwr_w(json['results']['21']['series']['0']['values']['0']['1']))
+					$("#mean_pwr_w_3s").html(pwr_w(json['results']['21']['series']['0']['values']['0']['2']))
+					$("#max_pwr_w_3s").html(pwr_w(json['results']['21']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 1 min
+			if (json['results']['22']['series']) {
+				if (json['results']['22']['series']['0']['values']) {
+					$("#min_pwr_w_1m").html(pwr_w(json['results']['22']['series']['0']['values']['0']['1']))
+					$("#mean_pwr_w_1m").html(pwr_w(json['results']['22']['series']['0']['values']['0']['2']))
+					$("#max_pwr_w_1m").html(pwr_w(json['results']['22']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 5 min
+			if (json['results']['23']['series']) {
+				if (json['results']['23']['series']['0']['values']) {
+					$("#min_pwr_w_5m").html(pwr_w(json['results']['23']['series']['0']['values']['0']['1']))
+					$("#mean_pwr_w_5m").html(pwr_w(json['results']['23']['series']['0']['values']['0']['2']))
+					$("#max_pwr_w_5m").html(pwr_w(json['results']['23']['series']['0']['values']['0']['3']))
+				}
+			}
+			// 10 min
+			if (json['results']['24']['series']) {
+				if (json['results']['24']['series']['0']['values']) {
+					$("#min_pwr_w_10m").html(pwr_w(json['results']['24']['series']['0']['values']['0']['1']))
+					$("#mean_pwr_w_10m").html(pwr_w(json['results']['24']['series']['0']['values']['0']['2']))
+					$("#max_pwr_w_10m").html(pwr_w(json['results']['24']['series']['0']['values']['0']['3']))
+				}
+			}
+		}
+	}
+}
+
+// first
+query();
+
+// reload every 1 sec
+setInterval( function() { query(); }, 1000 );
+
+</script>
+
+</body>
+</html>
