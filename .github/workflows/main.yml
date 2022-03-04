@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,10 +26,8 @@ jobs:
       run: $HOME/.local/bin/mkdocs build
     - name: CNAME
       run: echo 'livetracking.nkn-it.de' > "site/CNAME"
-    - name: Deploy to gh-pages branch
-      uses: s0/git-publish-subdir-action@master
-      env:
-        REPO: self
-        BRANCH: gh-pages
-        FOLDER: site
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        with:
+          branch: gh-pages
+          folder: site
