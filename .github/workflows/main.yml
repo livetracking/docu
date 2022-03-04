@@ -24,8 +24,10 @@ jobs:
         pip3 install mkdocs-minify-plugin
     - name: Build docs
       run: $HOME/.local/bin/mkdocs build
-    - name: CNAME
-      run: echo 'livetracking.nkn-it.de' > "site/CNAME"
+    - name: CNAME and .nojekyll
+      run: |
+        echo 'livetracking.nkn-it.de' > "site/CNAME" || exit 9
+        echo > "site/.nojekyll" || exit 9
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@v4.2.5
       with:
