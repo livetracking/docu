@@ -27,9 +27,8 @@ jobs:
     - name: CNAME and .nojekyll
       run: |
         echo 'livetracking.nkn-it.de' > "site/CNAME" || exit 9
-        echo > "site/.nojekyll" || exit 9
     - name: Deploy
-      uses: JamesIves/github-pages-deploy-action@v4.2.5
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        branch: gh-pages
-        folder: site
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
