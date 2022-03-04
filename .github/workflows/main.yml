@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - master
-  workflow_dispatch:
 
 jobs:
   build:
@@ -24,11 +23,12 @@ jobs:
         pip3 install mkdocs-minify-plugin
     - name: Build docs
       run: $HOME/.local/bin/mkdocs build
-    - name: CNAME and .nojekyll
-      run: |
-        echo 'livetracking.nkn-it.de' > "site/CNAME" || exit 9
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./site
+    - name: CNAME
+      run: echo 'livetracking.nkn-it.de' > "site/CNAME"
+    - name: Deploy to gh-pages branch
+      uses: s0/git-publish-subdir-action@2.5.1
+      env:
+        REPO: self
+        BRANCH: gh-pages
+        FOLDER: site
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
